@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulir Pemesanan Ulasan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────── */
+    :root {
+      --bg:       #f5f0eb;
+      --card:     #ffffff;
+      --accent:   #ff6b35;
+      --dark:     #1a1208;
+      --muted:    #8a7d6e;
+      --border:   #e8ddd2;
+      --input-bg: #faf7f4;
+      --shopee:   #ee4d2d;
+      --tiktok:   #010101;
+      --error:    #dc2626;
+    }
+
+    /* ── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Base ──────────────────────────────────────────────── */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(255,107,53,0.09) 0%, transparent 55%),
+        radial-gradient(circle at 85% 85%, rgba(255,155,107,0.07) 0%, transparent 55%);
+      min-height: 100vh;
+      padding: 40px 16px 80px;
+      color: var(--dark);
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper { max-width: 640px; margin: 0 auto; }
+
+    /* ── Header Card ───────────────────────────────────────── */
+    .header-card {
+      /* FIX: single background property — no cascade conflict */
+      background: linear-gradient(135deg, #ff6b35 0%, #ff3d00 100%);
+      border-radius: 20px 20px 0 0;
+      padding: 36px 36px 30px;
+      position: relative;
+      overflow: hidden;
+      animation: slideDown 0.5s ease both;
+    }
+    .header-card::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      pointer-events: none;
+    }
+    .header-card::after {
+      content: '';
+      position: absolute;
+      bottom: -30px; left: 28%;
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      pointer-events: none;
+    }
+    /* FIX: z-index so content sits above decorative circles */
+    .header-badge,
+    .header-card h1,
+    .header-card p { position: relative; z-index: 1; }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .header-card h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.25;
+    }
+    .header-card p {
+      color: rgba(255,255,255,0.82);
+      font-size: 13.5px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* ── Form Card ─────────────────────────────────────────── */
+    .form-card {
+      background: var(--card);
+      border-radius: 0 0 20px 20px;
+      padding: 36px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.09);
+      animation: slideUp 0.5s 0.1s ease both;
+    }
+
+    /* ── Field Group ───────────────────────────────────────── */
+    .field-group {
+      margin-bottom: 28px;
+      animation: fadeIn 0.4s ease both;
+    }
+    .field-group:nth-child(1) { animation-delay: 0.15s; }
+    .field-group:nth-child(2) { animation-delay: 0.20s; }
+    .field-group:nth-child(3) { animation-delay: 0.25s; }
+    .field-group:nth-child(4) { animation-delay: 0.30s; }
+    .field-group:nth-child(5) { animation-delay: 0.35s; }
+    .field-group:nth-child(6) { animation-delay: 0.40s; }
+    .field-group:nth-child(7) { animation-delay: 0.45s; }
+
+    /* FIX: scope label to avoid bleeding into .mp-label */
+    .field-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+    }
+    .required { color: var(--accent); margin-left: 3px; }
+    .hint {
+      display: block;
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    /* ── Inputs ────────────────────────────────────────────── */
+    input[type="text"],
+    input[type="date"],
+    input[type="url"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--input-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      color: var(--dark);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    /* FIX: hide number spinners for cleaner look */
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="url"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255,107,53,0.12);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 96px; line-height: 1.55; }
+
+    /* ── Marketplace Radio ─────────────────────────────────── */
+    /* FIX: use fieldset+legend for proper semantic grouping */
+    fieldset.mp-fieldset { border: none; padding: 0; }
+    fieldset.mp-fieldset legend {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+      padding: 0;
+      width: 100%;
+    }
+    .marketplace-group { display: flex; gap: 12px; }
+    .mp-option {
+      flex: 1;
+      min-width: 0; /* FIX: prevent flex overflow on small screens */
+      position: relative;
+    }
+    /* FIX: clip-rect hides but stays keyboard-accessible */
+    .mp-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 1px; height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+    }
+    .mp-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 12px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--dark);
+      background: var(--input-bg);
+      user-select: none;
+      white-space: nowrap;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+    }
+    .mp-icon {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .shopee-icon { background: var(--shopee); }
+    .tiktok-icon { background: var(--tiktok); font-size: 11px; }
+
+    .mp-option.shopee-opt input:checked ~ .mp-label {
+      border-color: var(--shopee);
+      color: var(--shopee);
+      background: #fff8f7;
+      box-shadow: 0 0 0 3px rgba(238,77,45,0.12);
+    }
+    .mp-option.tiktok-opt input:checked ~ .mp-label {
+      border-color: var(--tiktok);
+      color: var(--tiktok);
+      background: #f7f7f7;
+      box-shadow: 0 0 0 3px rgba(1,1,1,0.08);
+    }
+    /* Keyboard focus ring on visible label */
+    .mp-option input:focus-visible ~ .mp-label {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    /* FIX: error highlights the VISIBLE label, not the hidden input */
+    .field-group.error .mp-label {
+      border-color: var(--error);
+    }
+
+    /* ── Variasi Example Tags ──────────────────────────────── */
+    .variasi-example {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      background: #fff4ef;
+      color: var(--accent);
+      border: 1px solid #ffd4c2;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* ── Divider ───────────────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px dashed var(--border);
+      margin: 4px 0 28px;
+    }
+
+    /* ── Error States ──────────────────────────────────────── */
+    /* FIX: exclude radio/checkbox from border-color rule */
+    .field-group.error input:not([type="radio"]):not([type="checkbox"]),
+    .field-group.error textarea {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.08);
+    }
+    .error-msg {
+      color: var(--error);
+      font-size: 11.5px;
+      font-weight: 600;
+      margin-top: 6px;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+    .field-group.error .error-msg { display: flex; }
+
+    /* ── Submit Button ─────────────────────────────────────── */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      /* FIX: single background property */
+      background: linear-gradient(135deg, #ff6b35 0%, #ff3d00 100%);
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 20px rgba(255,107,53,0.38);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(255,107,53,0.45);
+    }
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    /* ── Success Overlay ───────────────────────────────────── */
+    /* FIX: CSS transition instead of display swap — smooth fade */
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,18,8,0.55);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .success-overlay.show { opacity: 1; visibility: visible; }
+    .success-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 36px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .success-overlay.show .success-box { transform: scale(1); }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; line-height: 1;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(22,163,74,0.3);
+    }
+    .success-box h2 { font-size: 22px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+    .success-box p  { color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .close-btn {
+      margin-top: 24px;
+      padding: 13px 32px;
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .close-btn:hover { opacity: 0.75; }
+
+    /* ── Animations ────────────────────────────────────────── */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      body { padding: 24px 12px 60px; }
+      .header-card, .form-card { padding: 24px 20px; }
+      .header-card h1 { font-size: 22px; }
+      .marketplace-group { gap: 8px; }
+      .mp-label { font-size: 13px; padding: 12px 8px; }
+      .success-box { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header-card">
+    <div class="header-badge">
+      <span>🛒</span> Formulir Pemesanan
+    </div>
+    <h1>Form Pemesanan<br>Ulasan Produk</h1>
+    <p>Isi semua data dengan lengkap &amp; benar untuk memproses pesanan Anda.</p>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <form id="orderForm" novalidate autocomplete="on">
+
+      <!-- 1. Nama Toko -->
+      <div class="field-group" id="grp-namaToko">
+        <label for="namaToko">
+          Nama Toko <span class="required">*</span>
+          <span class="hint">Nama toko Anda di marketplace</span>
+        </label>
+        <input type="text" id="namaToko" name="namaToko"
+               placeholder="Contoh: TokoFashionKita"
+               autocomplete="organization" />
+        <div class="error-msg" role="alert">⚠ Nama toko wajib diisi.</div>
+      </div>
+
+      <!-- 2. Tanggal Pemesanan -->
+      <div class="field-group" id="grp-tanggal">
+        <label for="tanggal">
+          Hari &amp; Tanggal Pemesanan <span class="required">*</span>
+        </label>
+        <input type="date" id="tanggal" name="tanggal" autocomplete="off" />
+        <div class="error-msg" role="alert">⚠ Tanggal pemesanan wajib diisi.</div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- 3. Pilih Marketplace -->
+      <div class="field-group" id="grp-marketplace">
+        <fieldset class="mp-fieldset">
+          <legend>
+            Pilih Marketplace <span class="required">*</span>
+            <span class="hint">Pilih platform tempat produk dijual</span>
+          </legend>
+          <div class="marketplace-group">
+            <div class="mp-option shopee-opt">
+              <input type="radio" id="shopee" name="marketplace" value="Shopee" />
+              <label for="shopee" class="mp-label">
+                <span class="mp-icon shopee-icon" aria-hidden="true">S</span>
+                Shopee
+              </label>
+            </div>
+            <div class="mp-option tiktok-opt">
+              <input type="radio" id="tiktok" name="marketplace" value="TikTok Shop" />
+              <label for="tiktok" class="mp-label">
+                <span class="mp-icon tiktok-icon" aria-hidden="true">▶</span>
+                TikTok Shop
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        <div class="error-msg" role="alert">⚠ Silakan pilih marketplace.</div>
+      </div>
+
+      <!-- 4. Link Produk -->
+      <div class="field-group" id="grp-linkProduk">
+        <label for="linkProduk">
+          Link Produk <span class="required">*</span>
+          <span class="hint">Salin &amp; tempel link produk dari Shopee atau TikTok Shop</span>
+        </label>
+        <input type="url" id="linkProduk" name="linkProduk"
+               placeholder="https://shopee.co.id/..."
+               autocomplete="off" inputmode="url" />
+        <div class="error-msg" role="alert">⚠ Link produk wajib diisi.</div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- 5. Order Berapa Ulasan -->
+      <div class="field-group" id="grp-orderUlasan">
+        <label for="orderUlasan">
+          Order Berapa Ulasan <span class="required">*</span>
+          <span class="hint">Masukkan jumlah ulasan yang ingin dipesan</span>
+        </label>
+        <input type="number" id="orderUlasan" name="orderUlasan"
+               placeholder="Contoh: 5"
+               min="1" max="9999"
+               autocomplete="off" inputmode="numeric" />
+        <div class="error-msg" role="alert">⚠ Jumlah ulasan wajib diisi (minimal 1).</div>
+      </div>
+
+      <!-- 6. Variasi yang Di-checkout -->
+      <div class="field-group" id="grp-variasi">
+        <label for="variasi">
+          Variasi yang Di-checkout <span class="required">*</span>
+          <span class="hint">Tulis lengkap: Warna – Ukuran – Jumlah</span>
+        </label>
+        <input type="text" id="variasi" name="variasi"
+               placeholder="Contoh: Hitam - XL - 1pcs"
+               autocomplete="off" />
+        <div class="variasi-example" aria-label="Contoh format variasi">
+          <span class="tag">Hitam - XL - 1pcs</span>
+          <span class="tag">Putih - M - 2pcs</span>
+          <span class="tag">Navy - L - 1pcs</span>
+        </div>
+        <div class="error-msg" role="alert">⚠ Variasi checkout wajib diisi.</div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- 7. Pesan Khusus -->
+      <div class="field-group">
+        <label for="pesanKhusus">
+          Pesan Khusus
+          <span class="hint">Instruksi tambahan atau catatan untuk pesanan ini (opsional)</span>
+        </label>
+        <textarea id="pesanKhusus" name="pesanKhusus"
+                  placeholder="Tulis pesan atau instruksi tambahan di sini..."
+                  autocomplete="off"></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span>✉</span><span>Kirim Formulir</span>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<!-- Success Overlay -->
+<div class="success-overlay" id="successOverlay"
+     role="dialog" aria-modal="true" aria-labelledby="successTitle">
+  <div class="success-box">
+    <div class="success-icon" aria-hidden="true">✓</div>
+    <h2 id="successTitle">Pesanan Terkirim!</h2>
+    <p>Formulir Anda telah berhasil dikirim.<br>Tim kami akan segera memproses pesanan Anda.</p>
+    <button class="close-btn" id="closeBtn">Isi Formulir Baru</button>
+  </div>
+</div>
+
+<script>
+  /* ── Helpers ──────────────────────────── */
+  const $ = id => document.getElementById(id);
+  const todayISO = new Date().toISOString().split('T')[0];
+  $('tanggal').value = todayISO;
+
+  /* ── Validation config ────────────────── */
+  const RULES = [
+    { id: 'namaToko',    grp: 'grp-namaToko',    check: v => v.trim() !== '' },
+    { id: 'tanggal',     grp: 'grp-tanggal',     check: v => v !== '' },
+    { id: 'linkProduk',  grp: 'grp-linkProduk',  check: v => v.trim() !== '' },
+    { id: 'orderUlasan', grp: 'grp-orderUlasan', check: v => v !== '' && Number(v) >= 1 },
+    { id: 'variasi',     grp: 'grp-variasi',     check: v => v.trim() !== '' }
+  ];
+
+  function setError(grpId, hasError) {
+    const grp = $(grpId);
+    if (grp) grp.classList.toggle('error', hasError);
+  }
+
+  function validate() {
+    let valid = true;
+    RULES.forEach(r => {
+      const el = $(r.id);
+      const fail = !r.check(el ? el.value : '');
+      setError(r.grp, fail);
+      if (fail) valid = false;
+    });
+    const mp = document.querySelector('input[name="marketplace"]:checked');
+    setError('grp-marketplace', !mp);
+    if (!mp) valid = false;
+    return valid;
+  }
+
+  /* ── Live error clearing ──────────────── */
+  document.querySelectorAll('input:not([type="radio"]), textarea').forEach(el => {
+    el.addEventListener('input', () => {
+      el.closest('.field-group')?.classList.remove('error');
+    });
+  });
+  document.querySelectorAll('input[name="marketplace"]').forEach(r => {
+    r.addEventListener('change', () => $('grp-marketplace').classList.remove('error'));
+  });
+
+  /* ── Google Sheets Web App URL ────────── */
+  /* 🔧 GANTI URL INI dengan URL Google Apps Script Anda */
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwadN8cNnzM53tXckO_-pHcl-zeepgTkq-DFWT_TTS70RtU5k_AV5h-p5_Yess2h-8BOw/exec';
+
+  /* ── Submit ───────────────────────────── */
+  $('orderForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!validate()) {
+      document.querySelector('.field-group.error')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    const btn = $('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span><span>Mengirim…</span>';
+
+    const payload = {
+      namaToko:    $('namaToko').value.trim(),
+      tanggal:     $('tanggal').value,
+      marketplace: document.querySelector('input[name="marketplace"]:checked')?.value || '',
+      linkProduk:  $('linkProduk').value.trim(),
+      orderUlasan: $('orderUlasan').value,
+      variasi:     $('variasi').value.trim(),
+      pesanKhusus: $('pesanKhusus').value.trim(),
+    };
+
+    try {
+      await fetch(SHEETS_URL, {
+          method: 'POST',
+          mode:   'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body:   JSON.stringify(payload),
+        });
+      btn.disabled = false;
+      btn.innerHTML = '<span>✉</span><span>Kirim Formulir</span>';
+      $('successOverlay').classList.add('show');
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>✉</span><span>Kirim Formulir</span>';
+      alert('❌ Gagal mengirim data. Periksa koneksi internet atau URL Apps Script Anda.');
+      console.error(err);
+    }
+  });
+
+  /* ── Reset ────────────────────────────── */
+  function resetForm() {
+    $('orderForm').reset();
+    $('tanggal').value = todayISO;
+    $('successOverlay').classList.remove('show');
+    document.querySelectorAll('.field-group').forEach(g => g.classList.remove('error'));
+    $('namaToko').focus();
+  }
+  $('closeBtn').addEventListener('click', resetForm);
+  /* Close on backdrop click */
+  $('successOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) resetForm(); });
+  /* Close on Escape */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('successOverlay').classList.contains('show')) resetForm();
+  });
+</script>
+</body>
+</html>
